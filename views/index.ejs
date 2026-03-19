@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GraphyHub — Premium Photography & Video Portfolio Platform</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+</head>
+<body class="bg-stone-50 text-slate-900 antialiased">
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center px-6 py-4 fixed w-full z-50 top-0 glass-effect">
+    <a href="/" class="text-2xl font-display font-bold tracking-tight">
+      <span class="text-red-800">GraphyHub</span>
+    </a>
+    <div class="space-x-8 hidden md:flex items-center text-sm font-medium tracking-wide">
+      <a href="/providers" class="text-slate-600 hover:text-red-700 transition-colors">View Portfolios</a>
+      <a href="/staff/register" class="text-slate-600 hover:text-red-700 transition-colors">Join as Staff</a>
+      <% if (user) { %>
+        <% if (user.role === 'admin') { %>
+          <a href="/admin" class="text-slate-600 hover:text-red-700 transition-colors">Admin</a>
+        <% } else if (user.role === 'provider') { %>
+          <a href="/providers/dashboard" class="text-slate-600 hover:text-red-700 transition-colors">My Portfolio</a>
+        <% } else { %>
+          <a href="/customer/dashboard" class="text-slate-600 hover:text-red-700 transition-colors">Dashboard</a>
+          <a href="/bookings/my-bookings" class="text-slate-600 hover:text-red-700 transition-colors">My Bookings</a>
+        <% } %>
+        <form action="/auth/logout" method="POST" class="inline">
+          <button type="submit" class="text-slate-600 hover:text-red-700 transition-colors">Logout</button>
+        </form>
+      <% } else { %>
+        <a href="/auth/login" class="text-slate-600 hover:text-red-700 transition-colors">Login</a>
+        <a href="/auth/register" class="px-5 py-2.5 bg-red-700 text-white rounded-md hover:bg-red-800 transition-all shadow-lg shadow-red-900/20 font-medium">
+          Sign Up
+        </a>
+      <% } %>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="relative min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat pt-16" 
+           style="background-image: linear-gradient(135deg, rgba(127, 29, 29, 0.7) 0%, rgba(15, 23, 42, 0.85) 50%, rgba(69, 10, 10, 0.7) 100%), url('https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=2000&q=85');">
+    <div class="text-center text-white relative z-10 px-6 max-w-4xl mx-auto">
+      <p class="text-red-200 uppercase tracking-[0.3em] text-sm font-medium mb-4 animate-fade-in">Premium Platform</p>
+      <h1 class="font-display text-6xl md:text-7xl lg:text-8xl font-semibold tracking-tight mb-6 leading-tight animate-fade-in" style="animation-delay: 0.1s">
+        Capture the Moment
+      </h1>
+      <p class="text-xl md:text-2xl text-slate-200/90 max-w-2xl mx-auto mb-12 font-light leading-relaxed animate-fade-in" style="animation-delay: 0.2s">
+        Discover exceptional photographers and video editors. View portfolios, book shoots, and bring your vision to life.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center animate-fade-in" style="animation-delay: 0.4s">
+        <a href="/providers" class="btn-primary px-10 py-4 rounded-md text-lg inline-flex items-center justify-center gap-2">
+          <i class="fas fa-images"></i> View Portfolios
+        </a>
+        <a href="#features" class="px-10 py-4 bg-white/10 border border-white/30 text-white rounded-md hover:bg-white/20 transition-all text-lg inline-flex items-center justify-center gap-2 backdrop-blur-sm">
+          <i class="fas fa-chevron-down"></i> Learn More
+        </a>
+      </div>
+    </div>
+    <div class="absolute bottom-12 left-1/2 -translate-x-1/2 animate-float">
+      <a href="#features" class="text-white/80 hover:text-white transition-colors"><i class="fas fa-chevron-down text-xl"></i></a>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="py-24 px-6 md:px-16 bg-white">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="font-display text-4xl md:text-5xl font-semibold text-center mb-3 text-slate-900 section-title">Why Choose GraphyHub?</h2>
+      <p class="text-lg text-center text-slate-500 mb-16 section-subtitle">Premium photography and video, seamlessly curated</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="group bg-gradient-to-b from-red-50/80 to-white rounded-2xl p-8 text-center border border-red-100/50 hover-lift card-premium">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-700 to-red-900 flex items-center justify-center mx-auto mb-6 text-white shadow-lg shadow-red-900/20 group-hover:scale-110 transition-transform">
+            <i class="fas fa-camera-retro text-2xl"></i>
+          </div>
+          <h3 class="font-display text-xl font-semibold mb-3 text-slate-900">Curated Portfolios</h3>
+          <p class="text-slate-600 leading-relaxed text-sm">Verified photographers and video editors. Quality you can trust.</p>
+        </div>
+        <div class="group bg-gradient-to-b from-red-50/80 to-white rounded-2xl p-8 text-center border border-red-100/50 hover-lift card-premium">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-700 to-red-900 flex items-center justify-center mx-auto mb-6 text-white shadow-lg shadow-red-900/20 group-hover:scale-110 transition-transform">
+            <i class="fas fa-map-marker-alt text-2xl"></i>
+          </div>
+          <h3 class="font-display text-xl font-semibold mb-3 text-slate-900">Find Creators Near You</h3>
+          <p class="text-slate-600 leading-relaxed text-sm">Location-based search. Filter by style, rating, and services.</p>
+        </div>
+        <div class="group bg-gradient-to-b from-red-50/80 to-white rounded-2xl p-8 text-center border border-red-100/50 hover-lift card-premium">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-700 to-red-900 flex items-center justify-center mx-auto mb-6 text-white shadow-lg shadow-red-900/20 group-hover:scale-110 transition-transform">
+            <i class="fas fa-star text-2xl"></i>
+          </div>
+          <h3 class="font-display text-xl font-semibold mb-3 text-slate-900">Verified Reviews</h3>
+          <p class="text-slate-600 leading-relaxed text-sm">Authentic client reviews. Transparency and trust.</p>
+        </div>
+        <div class="group bg-gradient-to-b from-red-50/80 to-white rounded-2xl p-8 text-center border border-red-100/50 hover-lift card-premium">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-700 to-red-900 flex items-center justify-center mx-auto mb-6 text-white shadow-lg shadow-red-900/20 group-hover:scale-110 transition-transform">
+            <i class="fas fa-graduation-cap text-2xl"></i>
+          </div>
+          <h3 class="font-display text-xl font-semibold mb-3 text-slate-900">Student Discounts</h3>
+          <p class="text-slate-600 leading-relaxed text-sm">Special rates for students. Verify with ID and save.</p>
+        </div>
+        <div class="group bg-gradient-to-b from-red-50/80 to-white rounded-2xl p-8 text-center border border-red-100/50 hover-lift card-premium">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-700 to-red-900 flex items-center justify-center mx-auto mb-6 text-white shadow-lg shadow-red-900/20 group-hover:scale-110 transition-transform">
+            <i class="fas fa-calendar-check text-2xl"></i>
+          </div>
+          <h3 class="font-display text-xl font-semibold mb-3 text-slate-900">Easy Booking</h3>
+          <p class="text-slate-600 leading-relaxed text-sm">Book in minutes. Choose a package, pick a date, go.</p>
+        </div>
+        <div class="group bg-gradient-to-b from-red-50/80 to-white rounded-2xl p-8 text-center border border-red-100/50 hover-lift card-premium">
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-700 to-red-900 flex items-center justify-center mx-auto mb-6 text-white shadow-lg shadow-red-900/20 group-hover:scale-110 transition-transform">
+            <i class="fas fa-shield-alt text-2xl"></i>
+          </div>
+          <h3 class="font-display text-xl font-semibold mb-3 text-slate-900">Secure & Reliable</h3>
+          <p class="text-slate-600 leading-relaxed text-sm">Industry-standard security for your data and payments.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Featured Creators -->
+  <section class="py-24 bg-gradient-to-b from-red-50/50 to-white">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 class="font-display text-4xl md:text-5xl font-semibold text-center mb-3 text-slate-900">Featured Creators</h2>
+      <p class="text-lg text-center text-slate-500 mb-14">Handpicked photographers and video editors</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <% if (featuredProviders && featuredProviders.length > 0) { %>
+          <% featuredProviders.forEach((provider, i) => { %>
+            <div class="group bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 hover-lift">
+              <div class="relative h-72 overflow-hidden">
+                <img src="<%= provider.coverImage || (provider.menu && provider.menu.length > 0 && provider.menu[0].image) || 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=800&q=85' %>" 
+                     alt="<%= provider.businessName %>" 
+                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                <% if (provider.isVerified) { %>
+                  <span class="absolute top-4 right-4 bg-emerald-500/90 text-white px-3 py-1 rounded-full text-xs font-semibold backdrop-blur-sm">
+                    <i class="fas fa-check-circle mr-1"></i> Verified
+                  </span>
+                <% } %>
+                <div class="absolute bottom-4 left-4 flex items-center gap-2 text-white">
+                  <span class="star-rating flex">
+                    <% for(let j = 0; j < 5; j++) { %>
+                      <i class="fas fa-star text-amber-400 <%= j < Math.round(provider.rating) ? 'opacity-100' : 'opacity-40' %>"></i>
+                    <% } %>
+                  </span>
+                  <span class="font-semibold"><%= provider.rating.toFixed(1) %></span>
+                </div>
+              </div>
+              <div class="p-6">
+                <h3 class="font-display text-xl font-semibold mb-2 text-slate-900"><%= provider.businessName %></h3>
+                <p class="text-slate-500 text-sm mb-3 flex items-center gap-2">
+                  <i class="fas fa-map-marker-alt text-red-600"></i>
+                  <%= provider.city || provider.address || 'Location not specified' %>
+                </p>
+                <p class="text-slate-600 text-sm mb-5 line-clamp-2"><%= provider.description || 'Photography & video services' %></p>
+                <a href="/providers/<%= provider._id %>" class="inline-flex items-center gap-2 text-red-700 font-semibold hover:text-red-800 transition-colors group/link">
+                  View Portfolio <i class="fas fa-arrow-right group-hover/link:translate-x-1 transition-transform"></i>
+                </a>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="col-span-3 text-center py-16">
+            <div class="w-20 h-20 rounded-2xl bg-red-100 flex items-center justify-center mx-auto mb-4">
+              <i class="fas fa-camera-retro text-4xl text-red-600"></i>
+            </div>
+            <p class="text-xl text-slate-500 mb-2">No featured creators yet.</p>
+            <a href="/auth/register?role=provider" class="text-red-700 font-semibold hover:underline">Register as a creator</a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Popular Creators -->
+  <section class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-6">
+      <h2 class="font-display text-4xl md:text-5xl font-semibold text-center mb-3 text-slate-900">Popular Creators</h2>
+      <p class="text-lg text-center text-slate-500 mb-14">Most loved by our clients</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <% if (popularProviders && popularProviders.length > 0) { %>
+          <% popularProviders.forEach(provider => { %>
+            <div class="group bg-white rounded-xl shadow-lg overflow-hidden border border-slate-100 hover-lift">
+              <div class="relative h-56 overflow-hidden">
+                <img src="<%= provider.coverImage || (provider.menu && provider.menu.length > 0 && provider.menu[0].image) || 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=85' %>" 
+                     alt="<%= provider.businessName %>" 
+                     class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+                <div class="absolute bottom-3 left-3 flex items-center gap-1 text-white text-sm">
+                  <span class="star-rating"><i class="fas fa-star text-amber-400"></i></span>
+                  <span class="font-semibold"><%= provider.rating.toFixed(1) %></span>
+                </div>
+              </div>
+              <div class="p-5">
+                <h3 class="font-display text-lg font-semibold mb-1 text-slate-900"><%= provider.businessName %></h3>
+                <p class="text-slate-500 text-sm mb-3 line-clamp-2"><%= provider.description || 'Photography & video' %></p>
+                <a href="/providers/<%= provider._id %>" class="text-red-700 font-semibold text-sm hover:text-red-800 transition-colors inline-flex items-center gap-1">
+                  View Details <i class="fas fa-arrow-right text-xs"></i>
+                </a>
+              </div>
+            </div>
+          <% }) %>
+        <% } else { %>
+          <div class="col-span-4 text-center py-12 text-slate-500">No popular creators yet.</div>
+        <% } %>
+      </div>
+      <div class="text-center mt-14">
+        <a href="/providers" class="btn-primary px-10 py-4 rounded-md text-lg inline-flex items-center gap-2">
+          View All Portfolios <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <% if (recentReviews && recentReviews.length > 0) { %>
+  <section class="py-24 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="font-display text-4xl md:text-5xl font-semibold text-center mb-3 text-slate-900">What Our Clients Say</h2>
+      <p class="text-lg text-center text-slate-500 mb-14">Real reviews from real clients</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <% recentReviews.forEach(review => { %>
+          <div class="bg-slate-50 rounded-2xl p-8 border border-slate-100 hover-lift">
+            <div class="flex items-center mb-5">
+              <div class="w-12 h-12 rounded-full bg-gradient-to-br from-red-700 to-red-900 flex items-center justify-center text-white font-display font-semibold text-lg mr-4">
+                <%= review.customer.name.charAt(0).toUpperCase() %>
+              </div>
+              <div>
+                <h4 class="font-semibold text-slate-900"><%= review.customer.name %></h4>
+                <p class="text-sm text-slate-500"><%= review.provider.businessName %></p>
+              </div>
+            </div>
+            <div class="star-rating mb-3 flex gap-0.5">
+              <% for(let i = 0; i < 5; i++) { %>
+                <i class="fas fa-star text-amber-400 <%= i < review.rating ? '' : 'opacity-40' %>"></i>
+              <% } %>
+            </div>
+            <p class="text-slate-600 italic">"<%= review.comment || 'Great service!' %>"</p>
+          </div>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
+  <!-- CTA Section -->
+  <section class="py-24 bg-gradient-to-br from-red-900 via-red-800 to-red-900 text-white relative overflow-hidden">
+    <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+    <div class="max-w-4xl mx-auto text-center px-6 relative z-10">
+      <h2 class="font-display text-4xl md:text-5xl font-semibold mb-6">Ready to Book a Creator?</h2>
+      <p class="text-xl text-red-100 mb-10">Browse portfolios, book shoots, or showcase your work</p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <a href="/providers" class="px-10 py-4 bg-white text-red-800 font-semibold rounded-md hover:bg-red-50 transition-all shadow-xl inline-flex items-center justify-center gap-2">
+          <i class="fas fa-images"></i> View Portfolios
+        </a>
+        <% if (!user || user.role === 'customer') { %>
+          <a href="/auth/register" class="px-10 py-4 border-2 border-white text-white font-semibold rounded-md hover:bg-white/10 transition-all inline-flex items-center justify-center gap-2">
+            <i class="fas fa-user-plus"></i> Sign Up Free
+          </a>
+        <% } %>
+        <a href="/auth/register?role=provider" class="px-10 py-4 bg-white/10 border border-white/40 text-white font-semibold rounded-md hover:bg-white/20 transition-all inline-flex items-center justify-center gap-2">
+          <i class="fas fa-camera-retro"></i> Add Your Portfolio
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-slate-900 text-slate-400 py-16">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+        <div>
+          <h3 class="font-display text-xl font-semibold text-white mb-4">GraphyHub</h3>
+          <p class="text-sm leading-relaxed">Premium photography and video portfolio platform. View portfolios, book creators, or showcase your work.</p>
+        </div>
+        <div>
+          <h4 class="font-semibold text-white mb-4">Quick Links</h4>
+          <ul class="space-y-3 text-sm">
+            <li><a href="/providers" class="hover:text-red-400 transition-colors">View Portfolios</a></li>
+            <li><a href="/auth/register" class="hover:text-red-400 transition-colors">Sign Up</a></li>
+            <li><a href="/auth/login" class="hover:text-red-400 transition-colors">Login</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-white mb-4">For Creators</h4>
+          <ul class="space-y-3 text-sm">
+            <li><a href="/auth/register?role=provider" class="hover:text-red-400 transition-colors">Add Your Portfolio</a></li>
+            <li><a href="/providers/dashboard" class="hover:text-red-400 transition-colors">Creator Dashboard</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-white mb-4">Contact</h4>
+          <ul class="space-y-3 text-sm">
+            <li><i class="fas fa-envelope mr-2 text-red-500/80"></i> support@GraphyHub.com</li>
+            <li><i class="fas fa-phone mr-2 text-red-500/80"></i> +1 (555) 123-4567</li>
+          </ul>
+        </div>
+      </div>
+      <div class="border-t border-slate-800 pt-8 text-center text-sm">
+        <p>© 2025 GraphyHub — Premium Photography & Video Platform</p>
+        <p class="mt-2 text-slate-500">Crafted with <i class="fas fa-heart text-red-500"></i> for creators and clients</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.from("nav", { y: -80, opacity: 0, duration: 0.8, ease: "power3.out" });
+    gsap.from("section h1, section .font-display", { y: 40, opacity: 0, duration: 1, delay: 0.3, ease: "power3.out" });
+    gsap.utils.toArray(".hover-lift").forEach((el, i) => {
+      gsap.from(el, { y: 30, opacity: 0, duration: 0.6, delay: 0.1 * i + 0.5, ease: "power2.out" });
+    });
+  </script>
+</body>
+</html>

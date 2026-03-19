@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creator Bookings - GraphyHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+  <nav class="flex justify-between items-center p-6 bg-white shadow-md fixed w-full z-50 top-0">
+    <a href="/" class="text-2xl font-bold text-red-700">
+      <i class="fas fa-camera-retro"></i> GraphyHub
+    </a>
+    <div class="space-x-6">
+      <a href="/providers/dashboard" class="hover:text-red-700 transition">Dashboard</a>
+      <form action="/auth/logout" method="POST" class="inline">
+        <button type="submit" class="hover:text-red-700 transition">Logout</button>
+      </form>
+    </div>
+  </nav>
+
+  <div class="max-w-6xl mx-auto px-6 pt-24 pb-12">
+    <h1 class="text-4xl font-bold mb-8 text-gray-800">Booking Requests</h1>
+
+    <div class="space-y-6">
+      <% if (bookings && bookings.length > 0) { %>
+        <% bookings.forEach(booking => { %>
+          <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <h2 class="text-2xl font-bold text-gray-800"><%= booking.customer.name %></h2>
+                <p class="text-gray-600 mt-1">
+                  <i class="fas fa-envelope mr-1"></i><%= booking.customer.email %>
+                </p>
+              </div>
+              <span class="px-4 py-2 rounded-lg font-bold <%= 
+                booking.status === 'Accepted' ? 'bg-green-100 text-green-800' : 
+                booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 
+                booking.status === 'Rejected' ? 'bg-red-100 text-red-800' : 
+                'bg-gray-100 text-gray-800' %>">
+                <%= booking.status %>
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+              <div>
+                <p class="text-gray-600"><strong>Event Date:</strong> <%= new Date(booking.eventDate).toLocaleDateString() %></p>
+                <p class="text-gray-600"><strong>Event Time:</strong> <%= booking.eventTime || 'Not specified' %></p>
+                <p class="text-gray-600"><strong>Guests:</strong> <%= booking.guests %></p>
+                <p class="text-gray-600"><strong>Event Type:</strong> <%= booking.eventType %></p>
+                <p class="text-gray-600 mt-2"><strong>Booking ID:</strong> <span class="text-xs font-mono"><%= booking._id.toString().slice(-8) %></span></p>
+              </div>
+              <div>
+                <p class="text-gray-600"><strong>Location:</strong></p>
+                <p class="text-gray-700"><%= booking.eventLocation.address %></p>
+                <p class="text-gray-700"><%= booking.eventLocation.city %></p>
+                <% if (booking.eventLocation.coordinates && booking.eventLocation.coordinates[0] !== 0) { %>
+                  <a href="https://www.google.com/maps?q=<%= booking.eventLocation.coordinates[1] %>,<%= booking.eventLocation.coordinates[0] %>" 
+                     target="_blank" 
+                     class="text-blue-600 hover:text-blue-700 text-sm mt-1 inline-block">
+                    <i class="fas fa-map-marker-alt mr-1"></i>View on Map
+                  </a>
+                <% } %>
+                <p class="text-gray-600 mt-2"><strong>Created:</strong> <%= new Date(booking.createdAt).toLocaleDateString() %></p>
+              </div>
+              <div>
+                <p class="text-gray-600"><strong>Amount Details:</strong></p>
+                <p class="text-gray-700">Total: ₹<%= booking.totalAmount %></p>
+                <% if (booking.discount > 0) { %>
+                  <p class="text-green-600">Discount: -₹<%= booking.discount %></p>
+                <% } %>
+                <p class="text-gray-800 font-bold text-lg">Final: ₹<%= booking.finalAmount %></p>
+                <p class="text-gray-600 mt-2">
+                  <strong>Payment:</strong> 
+                  <span class="<%= booking.paymentStatus === 'Paid' ? 'text-green-600' : 'text-yellow-600' %>">
+                    <%= booking.paymentStatus || 'Pending' %>
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <% if (booking.services && booking.services.length > 0) { %>
+              <div class="mb-4">
+                <p class="text-gray-600 font-bold mb-2">Services Requested:</p>
+                <ul class="list-disc list-inside text-gray-700">
+                  <% booking.services.forEach(service => { %>
+                    <li><%= service.name %> - ₹<%= service.pricePerHead %>/person</li>
+                  <% }) %>
+                </ul>
+              </div>
+            <% } %>
+
+            <% if (booking.specialRequests) { %>
+              <div class="mb-4 bg-gray-50 p-4 rounded-lg">
+                <p class="text-gray-600 font-bold mb-2">Special Requests:</p>
+                <p class="text-gray-700"><%= booking.specialRequests %></p>
+              </div>
+            <% } %>
+
+            <% if (booking.status === 'Pending') { %>
+              <form action="/bookings/<%= booking._id %>/status" method="POST" class="space-y-4">
+                <div>
+                  <label class="block text-gray-700 font-medium mb-2">Provider Notes (optional)</label>
+                  <textarea name="providerNotes" rows="3" 
+                    class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-yellow-400 focus:outline-none"
+                    placeholder="Add any notes for the customer..."><%= booking.providerNotes || '' %></textarea>
+                </div>
+                <div class="flex gap-4">
+                  <button type="submit" name="status" value="Accepted" 
+                    class="flex-1 bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition font-bold">
+                    <i class="fas fa-check mr-2"></i>Accept
+                  </button>
+                  <button type="submit" name="status" value="Rejected" 
+                    class="flex-1 bg-red-500 text-white px-6 py-3 rounded-lg hover:bg-red-600 transition font-bold">
+                    <i class="fas fa-times mr-2"></i>Reject
+                  </button>
+                </div>
+              </form>
+            <% } else if (booking.providerNotes) { %>
+              <div class="bg-yellow-50 p-4 rounded-lg">
+                <p class="text-gray-600 font-bold mb-2">Your Notes:</p>
+                <p class="text-gray-700"><%= booking.providerNotes %></p>
+              </div>
+            <% } %>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="bg-white rounded-xl shadow-lg p-12 text-center">
+          <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4"></i>
+          <p class="text-xl text-gray-500">No booking requests yet.</p>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>
+

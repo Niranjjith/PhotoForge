@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Bookings - GraphyHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+  <nav class="flex justify-between items-center p-6 bg-white shadow-md fixed w-full z-50 top-0">
+    <a href="/" class="text-2xl font-bold text-teal-600">
+      <i class="fas fa-camera-retro"></i> GraphyHub
+    </a>
+    <div class="space-x-6">
+      <a href="/providers" class="hover:text-teal-600 transition">Find Caterers</a>
+      <form action="/auth/logout" method="POST" class="inline">
+        <button type="submit" class="hover:text-teal-600 transition">Logout</button>
+      </form>
+    </div>
+  </nav>
+
+  <div class="max-w-6xl mx-auto px-6 pt-24 pb-12">
+    <h1 class="text-4xl font-bold mb-8 text-gray-800">My Bookings</h1>
+
+    <div class="space-y-6">
+      <% if (bookings && bookings.length > 0) { %>
+        <% bookings.forEach(booking => { %>
+          <div class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-start justify-between mb-4">
+              <div>
+                <h2 class="text-2xl font-bold text-gray-800"><%= booking.provider.businessName %></h2>
+                <p class="text-gray-600 mt-1">
+                  <i class="fas fa-map-marker-alt mr-1"></i><%= booking.provider.address || 'Address not provided' %>
+                </p>
+              </div>
+              <span class="px-4 py-2 rounded-lg font-bold <%= 
+                booking.status === 'Accepted' ? 'bg-green-100 text-green-800' : 
+                booking.status === 'Pending' ? 'bg-teal-100 text-teal-800' : 
+                booking.status === 'Rejected' ? 'bg-red-100 text-red-800' : 
+                booking.status === 'Completed' ? 'bg-blue-100 text-blue-800' : 
+                'bg-gray-100 text-gray-800' %>">
+                <%= booking.status %>
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <p class="text-gray-600"><strong>Event Date:</strong> <%= new Date(booking.eventDate).toLocaleDateString() %></p>
+                <p class="text-gray-600"><strong>Guests:</strong> <%= booking.guests %></p>
+                <p class="text-gray-600"><strong>Event Type:</strong> <%= booking.eventType %></p>
+              </div>
+              <div>
+                <p class="text-gray-600"><strong>Total Amount:</strong> ₹<%= booking.totalAmount %></p>
+                <% if (booking.discount > 0) { %>
+                  <p class="text-green-600"><strong>Discount:</strong> ₹<%= booking.discount %></p>
+                  <p class="text-gray-800 font-bold"><strong>Final Amount:</strong> ₹<%= booking.finalAmount %></p>
+                <% } %>
+              </div>
+            </div>
+
+            <% if (booking.specialRequests) { %>
+              <div class="mb-4">
+                <p class="text-gray-600"><strong>Special Requests:</strong></p>
+                <p class="text-gray-700"><%= booking.specialRequests %></p>
+              </div>
+            <% } %>
+
+            <% if (booking.providerNotes) { %>
+              <div class="mb-4 bg-yellow-50 p-4 rounded-lg">
+                <p class="text-gray-600"><strong>Provider Notes:</strong></p>
+                <p class="text-gray-700"><%= booking.providerNotes %></p>
+              </div>
+            <% } %>
+
+            <div class="flex gap-4">
+              <% if (booking.status === 'Pending') { %>
+                <form action="/bookings/<%= booking._id %>/cancel" method="POST" class="inline">
+                  <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
+                    Cancel Booking
+                  </button>
+                </form>
+              <% } %>
+              <a href="/providers/<%= booking.provider._id %>" class="btn-primary px-4 py-2 rounded-xl text-white transition">
+                View Provider
+              </a>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="bg-white rounded-xl shadow-lg p-12 text-center">
+          <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4"></i>
+          <p class="text-xl text-gray-500 mb-4">You have no bookings yet.</p>
+          <a href="/providers" class="text-teal-600 font-bold hover:text-teal-700">
+            <i class="fas fa-search mr-2"></i>Find Creators
+          </a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>
+

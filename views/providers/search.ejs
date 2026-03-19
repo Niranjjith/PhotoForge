@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Creators | GraphyHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .star-rating { color: #d4af37; }
+    .hover-lift { transition: transform 0.3s ease; }
+    .hover-lift:hover { transform: translateY(-5px); }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center p-6 bg-white shadow-md fixed w-full z-50 top-0">
+    <a href="/" class="text-2xl font-bold text-red-700">
+      <i class="fas fa-camera-retro"></i> GraphyHub
+    </a>
+    <div class="space-x-6">
+      <a href="/" class="hover:text-red-700 transition">Home</a>
+      <% if (user) { %>
+        <form action="/auth/logout" method="POST" class="inline">
+          <button type="submit" class="hover:text-red-700 transition">Logout</button>
+        </form>
+      <% } else { %>
+        <a href="/auth/login" class="hover:text-red-700 transition">Login</a>
+      <% } %>
+    </div>
+  </nav>
+
+  <!-- Search Section -->
+  <div class="bg-gradient-to-r from-red-800 to-red-700 text-white pt-24 pb-12 px-6">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-4xl font-bold mb-6 text-center">Find Photographers & Video Editors</h1>
+      <form method="GET" action="/providers" class="bg-white rounded-2xl p-6 shadow-xl">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Search</label>
+            <div class="relative">
+              <input type="text" name="search" id="search-input" value="<%= search || '' %>" 
+                     placeholder="Studio name, city, style..." 
+                     class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none text-gray-800"
+                     autocomplete="off">
+              <div id="ai-suggestions" class="absolute z-50 w-full mt-1 bg-white border rounded-lg shadow-lg hidden max-h-60 overflow-y-auto"></div>
+            </div>
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">City</label>
+            <input type="text" name="city" value="<%= city || '' %>" 
+                   placeholder="Enter city" 
+                   class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none text-gray-800">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Radius (km)</label>
+            <input type="number" name="radius" value="<%= radius || 50 %>" 
+                   placeholder="50" 
+                   class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none text-gray-800">
+          </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Latitude (optional)</label>
+            <input type="number" step="any" name="lat" value="<%= lat || '' %>" 
+                   placeholder="e.g. 19.0760" 
+                   class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none text-gray-800">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Longitude (optional)</label>
+            <input type="number" step="any" name="lng" value="<%= lng || '' %>" 
+                   placeholder="e.g. 72.8777" 
+                   class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none text-gray-800">
+          </div>
+        </div>
+        <div class="flex gap-4">
+          <button type="submit" class="flex-1 bg-red-700 text-white font-bold py-3 rounded-lg hover:bg-red-600 transition">
+            <i class="fas fa-search mr-2"></i>Search
+          </button>
+          <button type="button" onclick="getLocation()" class="px-6 bg-gray-200 text-gray-800 font-bold py-3 rounded-lg hover:bg-gray-300 transition">
+            <i class="fas fa-map-marker-alt mr-2"></i>Use My Location
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div class="max-w-7xl mx-auto px-6 py-12">
+    <h2 class="text-3xl font-bold mb-8 text-gray-800">
+      <% if (providers && providers.length > 0) { %>
+        Found <%= providers.length %> Creator<%= providers.length !== 1 ? 's' : '' %>
+      <% } else { %>
+        No Creators Found
+      <% } %>
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <% if (providers && providers.length > 0) { %>
+        <% providers.forEach(provider => { %>
+          <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover-lift">
+            <div class="relative h-64 overflow-hidden">
+              <img src="<%= provider.coverImage || (provider.menu && provider.menu.length > 0 && provider.menu[0].image) || 'https://images.unsplash.com/photo-1452587925148-ce4e3d4b2b7b?auto=format&fit=crop&w=800&q=80' %>" 
+                   alt="<%= provider.businessName %>" 
+                   class="w-full h-full object-cover transform hover:scale-110 transition duration-500">
+              <% if (provider.isVerified) { %>
+                <div class="absolute top-4 right-4 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-bold">
+                  <i class="fas fa-check-circle mr-1"></i> Verified
+                </div>
+              <% } %>
+              <div class="absolute bottom-4 left-4 flex items-center bg-black bg-opacity-70 text-white px-3 py-2 rounded-lg">
+                <span class="star-rating mr-2">
+                  <% for(let i = 0; i < 5; i++) { %>
+                    <i class="fas fa-star <%= i < Math.round(provider.rating) ? '' : 'text-gray-400' %>"></i>
+                  <% } %>
+                </span>
+                <span class="font-bold"><%= provider.rating.toFixed(1) %></span>
+              </div>
+            </div>
+            <div class="p-6">
+              <h3 class="text-2xl font-bold mb-2 text-gray-800"><%= provider.businessName %></h3>
+              <p class="text-gray-600 mb-3 flex items-center">
+                <i class="fas fa-map-marker-alt text-red-700 mr-2"></i>
+                <%= provider.city || provider.address || 'Location not specified' %>
+              </p>
+              <p class="text-gray-700 mb-4 line-clamp-2"><%= provider.description || 'Photography & video services' %></p>
+              <div class="flex items-center justify-between">
+                <a href="/providers/<%= provider._id %>" class="text-red-700 font-bold hover:text-red-800 transition">
+                  View Portfolio <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+                <span class="text-sm text-gray-500">
+                  <i class="fas fa-users mr-1"></i><%= provider.totalReviews || 0 %> reviews
+                </span>
+              </div>
+            </div>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="col-span-3 text-center py-12">
+          <i class="fas fa-camera-retro text-6xl text-gray-300 mb-4"></i>
+          <p class="text-xl text-gray-500 mb-4">No creators found matching your criteria.</p>
+          <a href="/providers" class="text-red-700 font-bold hover:text-red-800">
+            <i class="fas fa-arrow-left mr-2"></i>Clear Search
+          </a>
+        </div>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 py-8 mt-16">
+    <div class="max-w-6xl mx-auto text-center px-6">
+      <p class="text-sm">© 2025 GraphyHub — Photography & Video Platform</p>
+    </div>
+  </footer>
+
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          document.querySelector('input[name="lat"]').value = position.coords.latitude.toFixed(6);
+          document.querySelector('input[name="lng"]').value = position.coords.longitude.toFixed(6);
+        });
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+    }
+
+    // AI Search Suggestions
+    const searchInput = document.getElementById('search-input');
+    const suggestionsDiv = document.getElementById('ai-suggestions');
+    let suggestionTimeout;
+
+    searchInput?.addEventListener('input', function() {
+      clearTimeout(suggestionTimeout);
+      const query = this.value.trim();
+
+      if (query.length < 2) {
+        suggestionsDiv.classList.add('hidden');
+        return;
+      }
+
+      suggestionTimeout = setTimeout(() => {
+        fetch(`/ai/search-suggestions?query=${encodeURIComponent(query)}`)
+          .then(res => res.json())
+          .then(data => {
+            if (data.suggestions && data.suggestions.length > 0) {
+              suggestionsDiv.innerHTML = data.suggestions.map(suggestion => `
+                <div class="p-3 hover:bg-red-50 cursor-pointer border-b last:border-0" 
+                     onclick="selectSuggestion('${suggestion.text}')">
+                  <div class="flex items-center">
+                    <i class="fas ${suggestion.type === 'provider' ? 'fa-camera-retro' : 'fa-search'} text-red-700 mr-2"></i>
+                    <span>${suggestion.text}</span>
+                    ${suggestion.rating ? `<span class="ml-auto text-sm text-gray-500">⭐ ${suggestion.rating.toFixed(1)}</span>` : ''}
+                  </div>
+                </div>
+              `).join('');
+              suggestionsDiv.classList.remove('hidden');
+            } else {
+              suggestionsDiv.classList.add('hidden');
+            }
+          })
+          .catch(err => {
+            suggestionsDiv.classList.add('hidden');
+          });
+      }, 300);
+    });
+
+    function selectSuggestion(text) {
+      searchInput.value = text;
+      suggestionsDiv.classList.add('hidden');
+      searchInput.form.submit();
+    }
+
+    // Hide suggestions when clicking outside
+    document.addEventListener('click', function(e) {
+      if (!searchInput.contains(e.target) && !suggestionsDiv.contains(e.target)) {
+        suggestionsDiv.classList.add('hidden');
+      }
+    });
+  </script>
+</body>
+</html>
+

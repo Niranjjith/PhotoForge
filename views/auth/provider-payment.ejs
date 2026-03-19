@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creator Registration Payment - GraphyHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://www.paypal.com/sdk/js?client-id=AXJNJlnWdCi3zsB4ABAu4JvjZk_8sIK_jGXKeUP2CLr8_ZkG6yNXSGYn1VvrBOwvFfZNFVuRECwOfDh7&currency=USD"></script>
+</head>
+<body class="bg-gradient-to-br from-red-50/50 via-white to-stone-50 min-h-screen flex items-center justify-center">
+  <div class="bg-white shadow-2xl rounded-2xl p-10 w-11/12 max-w-2xl">
+    <div class="text-center mb-8">
+      <i class="fas fa-camera-retro text-red-600 text-6xl mb-4"></i>
+      <h2 class="text-4xl font-bold mb-4 text-gray-800">Creator Registration</h2>
+      <p class="text-gray-600">Complete your registration to add your portfolio and receive bookings</p>
+    </div>
+
+    <% if (typeof error !== 'undefined' && error.length > 0) { %>
+      <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-6">
+        <%= error[0] %>
+      </div>
+    <% } %>
+
+    <div class="bg-red-50 rounded-lg p-6 mb-6">
+      <h3 class="text-xl font-bold mb-4 text-gray-800">Registration Details</h3>
+      <div class="space-y-2 text-gray-700">
+        <p><strong>Name:</strong> <%= name %></p>
+        <p><strong>Email:</strong> <%= email %></p>
+        <p><strong>Amount:</strong> ₹10 INR ($0.15 USD)</p>
+      </div>
+    </div>
+
+    <div class="bg-blue-50 rounded-lg p-6 mb-6">
+      <h3 class="text-xl font-bold mb-3 text-gray-800">What You Get:</h3>
+      <ul class="space-y-2 text-gray-700">
+        <li><i class="fas fa-check text-green-500 mr-2"></i>Full access to provider dashboard</li>
+        <li><i class="fas fa-check text-green-500 mr-2"></i>Portfolio management with images</li>
+        <li><i class="fas fa-check text-green-500 mr-2"></i>Services and packages management</li>
+        <li><i class="fas fa-check text-green-500 mr-2"></i>Booking management system</li>
+        <li><i class="fas fa-check text-green-500 mr-2"></i>Location-based search visibility</li>
+        <li><i class="fas fa-check text-green-500 mr-2"></i>Premium PDF bill after payment</li>
+      </ul>
+    </div>
+
+    <div id="paypal-button-container" class="mb-6"></div>
+
+    <div class="text-center">
+      <a href="/auth/register" class="text-gray-600 hover:text-red-700 transition">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Registration
+      </a>
+    </div>
+  </div>
+
+  <script>
+    const userId = '<%= userId %>';
+    const email = '<%= email %>';
+    const name = '<%= name %>';
+
+    paypal.Buttons({
+      createOrder: function(data, actions) {
+        return fetch('/payments/create-order', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            userId: userId,
+            email: email,
+            name: name
+          })
+        })
+        .then(function(res) {
+          return res.json();
+        })
+        .then(function(data) {
+          if (data.error) {
+            alert(data.error);
+            throw new Error(data.error);
+          }
+          return data.orderId;
+        });
+      },
+      onApprove: function(data, actions) {
+        // The payment is automatically captured on the server side
+        // Redirect to success page which will verify and complete the payment
+        window.location.href = `/payments/success?token=${data.orderID}&PayerID=${data.payerID}`;
+      },
+      onError: function(err) {
+        console.error('PayPal error:', err);
+        alert('Payment failed. Please try again.');
+      },
+      onCancel: function(data) {
+        window.location.href = '/payments/cancel';
+      }
+    }).render('#paypal-button-container');
+  </script>
+</body>
+</html>
+

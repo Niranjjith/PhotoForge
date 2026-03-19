@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Creator Dashboard - GraphyHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .image-preview { max-height: 200px; object-fit: cover; }
+    .dashboard-sidebar { min-height: calc(100vh - 80px); }
+    .sidebar-item { transition: all 0.3s ease; }
+    .sidebar-item.active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(20, 184, 166, 0.15)); border-left: 4px solid #14b8a6; }
+    .sidebar-item:hover { background: rgba(6, 182, 212, 0.08); transform: translateX(4px); }
+    .content-section { display: none; animation: fadeInUp 0.5s ease-out; }
+    .content-section.active { display: block; }
+    .stat-card-icon { width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center; }
+    .glass-card { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(6, 182, 212, 0.2); }
+    .floating-shape { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.1; animation: float 8s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-red-50/50 via-white to-stone-50 min-h-screen text-gray-900">
+  <nav class="flex justify-between items-center bg-white shadow-md px-6 py-4 fixed top-0 w-full z-10">
+    <a href="/" class="text-2xl font-bold text-red-700"><i class="fas fa-camera-retro mr-1"></i>GraphyHub</a>
+    <div class="space-x-4">
+      <a href="/providers/<%= provider._id %>" class="text-gray-700 hover:text-red-700 transition">
+        <i class="fas fa-eye mr-1"></i>View Portfolio
+      </a>
+      <form action="/auth/logout" method="POST" class="inline">
+        <button class="bg-red-700 text-white px-5 py-2 rounded-lg hover:bg-red-800 shadow-md transition">
+          Logout
+        </button>
+      </form>
+    </div>
+  </nav>
+
+  <section class="pt-28 pb-16 px-6 md:px-16 max-w-7xl mx-auto">
+    <div class="mb-10 text-center">
+      <h2 class="text-4xl font-extrabold text-gray-800 mb-2">Creator Dashboard</h2>
+      <p class="text-gray-600 text-lg">Manage your portfolio, services, and bookings</p>
+    </div>
+
+    <!-- Payment Status Alert -->
+    <% if (!hasPayment) { %>
+      <div class="bg-amber-100 border-l-4 border-amber-500 text-amber-800 p-4 mb-6 rounded">
+        <div class="flex items-center">
+          <i class="fas fa-exclamation-triangle text-2xl mr-3"></i>
+          <div>
+            <p class="font-bold">Payment Required</p>
+            <p>Complete your creator registration payment to unlock all features.</p>
+            <a href="/auth/provider-payment" class="text-amber-700 underline font-bold mt-1 inline-block">Complete Payment →</a>
+          </div>
+        </div>
+      </div>
+    <% } %>
+
+    <!-- Tabs -->
+    <div class="bg-white rounded-2xl shadow-xl mb-8">
+      <div class="border-b border-gray-200">
+        <nav class="flex -mb-px">
+          <button onclick="showTab('profile')" class="tab-btn active px-6 py-4 font-medium text-red-700 border-b-2 border-red-700">
+            <i class="fas fa-user-circle mr-2"></i>Profile
+          </button>
+          <button onclick="showTab('images')" class="tab-btn px-6 py-4 font-medium text-gray-600 hover:text-red-700">
+            <i class="fas fa-images mr-2"></i>Portfolio
+          </button>
+          <button onclick="showTab('menu')" class="tab-btn px-6 py-4 font-medium text-gray-600 hover:text-red-700">
+            <i class="fas fa-box-open mr-2"></i>Services & Packages
+          </button>
+          <button onclick="showTab('bookings')" class="tab-btn px-6 py-4 font-medium text-gray-600 hover:text-red-700">
+            <i class="fas fa-calendar-check mr-2"></i>Bookings
+          </button>
+          <button onclick="showTab('staff')" class="tab-btn px-6 py-4 font-medium text-gray-600 hover:text-red-700">
+            <i class="fas fa-users mr-2"></i>Staff
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tab Content: Profile -->
+      <div id="tab-profile" class="tab-content active p-8">
+        <form action="/providers/dashboard" method="POST" class="space-y-6">
+          <h3 class="text-2xl font-semibold text-red-700 mb-4">Studio / Profile Information</h3>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Studio or Display Name *</label>
+              <input type="text" name="businessName" value="<%= provider.businessName || '' %>" required
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Phone *</label>
+              <input type="text" name="phone" value="<%= provider.phone || '' %>" required
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Email</label>
+              <input type="email" name="email" value="<%= provider.email || '' %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Service Radius (km)</label>
+              <input type="number" name="serviceRadius" value="<%= provider.serviceRadius || 50 %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+          </div>
+          <div class="mt-4">
+            <label class="block text-gray-700 font-medium mb-2">Address</label>
+            <input type="text" name="address" value="<%= provider.address || '' %>"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+          <div class="grid md:grid-cols-3 gap-4 mt-4">
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">City</label>
+              <input type="text" name="city" value="<%= provider.city || '' %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+          </div>
+          <div class="grid md:grid-cols-2 gap-4 mt-4">
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Latitude</label>
+              <input type="number" step="any" name="lat" value="<%= provider.location.coordinates[1] || '' %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Longitude</label>
+              <input type="number" step="any" name="lng" value="<%= provider.location.coordinates[0] || '' %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">State</label>
+              <input type="text" name="state" value="<%= provider.state || '' %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Zip Code</label>
+              <input type="text" name="zipCode" value="<%= provider.zipCode || '' %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">State</label>
+              <input type="text" name="state" value="<%= provider.state || '' %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Zip Code</label>
+              <input type="text" name="zipCode" value="<%= provider.zipCode || '' %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+          </div>
+          <div class="mt-4">
+            <label class="block text-gray-700 font-medium mb-2">Description</label>
+            <textarea name="description" rows="4"
+              class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none"><%= provider.description || '' %></textarea>
+          </div>
+
+          <h3 class="text-2xl font-semibold text-red-700 mb-4 mt-8">Portfolio</h3>
+          <div class="space-y-4">
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Bio</label>
+              <textarea name="bio" rows="3" placeholder="Tell us about your photography or video work..."
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none"><%= provider.portfolio.bio || '' %></textarea>
+            </div>
+
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Specialties (comma separated)</label>
+              <input type="text" name="specialties" 
+                value="<%= provider.portfolio.specialties ? provider.portfolio.specialties.join(', ') : '' %>"
+                placeholder="e.g. Weddings, Corporate Events, Birthdays"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Years of Experience</label>
+              <input type="number" name="yearsOfExperience" value="<%= provider.portfolio.yearsOfExperience || 0 %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+
+          <h3 class="text-2xl font-semibold text-red-700 mb-4 mt-8">Social Links</h3>
+          <div class="grid md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Website</label>
+              <input type="url" name="website" value="<%= provider.socialLinks.website || '' %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Facebook</label>
+              <input type="url" name="facebook" value="<%= provider.socialLinks.facebook || '' %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Instagram</label>
+              <input type="url" name="instagram" value="<%= provider.socialLinks.instagram || '' %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">Twitter</label>
+              <input type="url" name="twitter" value="<%= provider.socialLinks.twitter || '' %>"
+                class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+
+          <button type="submit" class="w-full bg-yellow-600 text-white font-semibold py-4 rounded-lg hover:bg-yellow-700 transition shadow-lg mt-6">
+            <i class="fas fa-save mr-2"></i>Save Changes
+          </button>
+        </form>
+      </div>
+
+      <!-- Tab Content: Images -->
+      <div id="tab-images" class="tab-content p-8">
+        <h3 class="text-2xl font-semibold text-red-700 mb-6">Images & Portfolio</h3>
+        
+        <!-- Cover Image -->
+        <div class="mb-8">
+          <label class="block text-gray-700 font-medium mb-2">Cover Image URL</label>
+          <div class="flex gap-4">
+            <input type="url" id="cover-image-input" value="<%= provider.coverImage || '' %>"
+              placeholder="https://example.com/image.jpg"
+              class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            <button type="button" onclick="testImage('cover-image-input', 'cover-image-preview')" 
+              class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition">
+              <i class="fas fa-eye mr-2"></i>Test
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Portfolio Section -->
+      <div id="section-portfolio" class="content-section">
+        <div class="mb-8">
+          <label class="block text-gray-700 font-medium mb-2">Logo URL</label>
+          <div class="flex gap-4">
+            <input type="url" id="logo-input" value="<%= provider.logo || '' %>"
+              placeholder="https://example.com/logo.jpg"
+              class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            <button type="button" onclick="testImage('logo-input', 'logo-preview')" 
+              class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition">
+              <i class="fas fa-eye mr-2"></i>Test
+            </button>
+          </div>
+          <div class="mt-4">
+            <img id="logo-preview" src="<%= provider.logo || '' %>" 
+              alt="Logo Preview" class="w-32 h-32 object-cover rounded-full border <%= provider.logo ? '' : 'hidden' %>"
+              onerror="this.classList.add('hidden')">
+          </div>
+          <form action="/providers/dashboard" method="POST" class="mt-2">
+            <input type="hidden" name="logo" id="logo-save">
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition text-sm">
+              <i class="fas fa-save mr-1"></i>Save Logo
+            </button>
+          </form>
+        </div>
+
+        <!-- Portfolio Images -->
+        <div>
+          <label class="block text-gray-700 font-medium mb-2">Portfolio Images</label>
+          <form action="/providers/dashboard/portfolio/image" method="POST" class="mb-4">
+            <div class="flex gap-4">
+              <input type="url" name="imageUrl" id="portfolio-image-input"
+                placeholder="https://example.com/portfolio-image.jpg"
+                class="flex-1 p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+              <button type="button" onclick="testImage('portfolio-image-input', 'portfolio-image-preview')" 
+                class="bg-blue-500 text-white px-6 py-3 rounded-lg hover:bg-blue-600 transition">
+                <i class="fas fa-eye mr-2"></i>Test
+              </button>
+            </div>
+            <div class="mb-4">
+              <img id="cover-image-preview" src="<%= provider.coverImage || '' %>" 
+                alt="Cover Preview" class="w-full h-64 object-cover rounded-xl border-2 border-gray-200 <%= provider.coverImage ? '' : 'hidden' %>"
+                onerror="this.classList.add('hidden')">
+            </div>
+            <form action="/providers/dashboard" method="POST">
+              <input type="hidden" name="coverImage" id="cover-image-save">
+              <button type="submit" class="btn-primary px-6 py-2 rounded-xl text-sm shadow-md">
+                <i class="fas fa-save mr-1"></i>Save Cover Image
+              </button>
+            </form>
+          </div>
+
+          <!-- Logo -->
+          <div class="border-t border-gray-200 pt-8">
+            <label class="block text-gray-700 font-semibold mb-3">
+              <i class="fas fa-id-badge text-red-600 mr-2"></i>Logo
+            </label>
+            <div class="flex gap-4 mb-4">
+              <input type="url" id="logo-input" value="<%= provider.logo || '' %>"
+                placeholder="https://example.com/logo.jpg"
+                class="flex-1 p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition">
+              <button type="button" onclick="testImage('logo-input', 'logo-preview')" 
+                class="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition shadow-md">
+                <i class="fas fa-eye mr-2"></i>Preview
+              </button>
+            </div>
+            <div class="mb-4">
+              <img id="logo-preview" src="<%= provider.logo || '' %>" 
+                alt="Logo Preview" class="w-32 h-32 object-cover rounded-full border-4 border-gray-200 <%= provider.logo ? '' : 'hidden' %>"
+                onerror="this.classList.add('hidden')">
+            </div>
+            <form action="/providers/dashboard" method="POST">
+              <input type="hidden" name="logo" id="logo-save">
+              <button type="submit" class="btn-primary px-6 py-2 rounded-xl text-sm shadow-md">
+                <i class="fas fa-save mr-1"></i>Save Logo
+              </button>
+            </form>
+          </div>
+
+          <!-- Portfolio Images -->
+          <div class="border-t border-gray-200 pt-8">
+            <label class="block text-gray-700 font-semibold mb-3">
+              <i class="fas fa-images text-red-600 mr-2"></i>Portfolio Gallery
+            </label>
+            <form action="/providers/dashboard/portfolio/image" method="POST" class="mb-6">
+              <div class="flex gap-4">
+                <input type="url" name="imageUrl" id="portfolio-image-input"
+                  placeholder="https://example.com/portfolio-image.jpg"
+                  class="flex-1 p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition">
+                <button type="button" onclick="testImage('portfolio-image-input', 'portfolio-image-preview')" 
+                  class="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition shadow-md">
+                  <i class="fas fa-eye mr-2"></i>Preview
+                </button>
+                <button type="submit" class="btn-primary px-6 py-3 rounded-xl shadow-md">
+                  <i class="fas fa-plus mr-2"></i>Add Image
+                </button>
+              </div>
+              <div class="mt-4">
+                <img id="portfolio-image-preview" src="" 
+                  alt="Portfolio Preview" class="w-full h-64 object-cover rounded-xl border-2 border-gray-200 hidden"
+                  onerror="this.classList.add('hidden')">
+              </div>
+            </form>
+
+            <!-- Portfolio Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <% if (provider.portfolio.images && provider.portfolio.images.length > 0) { %>
+                <% provider.portfolio.images.forEach((img, index) => { %>
+                  <div class="relative group rounded-xl overflow-hidden border-2 border-gray-200 hover:border-red-500 transition">
+                    <img src="<%= img %>" alt="Portfolio" class="w-full h-40 object-cover">
+                    <form action="/providers/dashboard/portfolio/image/<%= index %>?_method=DELETE" method="POST" class="absolute top-2 right-2">
+                      <button type="submit" onclick="return confirm('Remove this image?')" 
+                        class="bg-red-500 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition shadow-lg">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </form>
+                  </div>
+                <% }) %>
+              <% } else { %>
+                <div class="col-span-full text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
+                  <i class="fas fa-images text-4xl text-gray-300 mb-3"></i>
+                  <p class="text-gray-500">No portfolio images yet. Add your best work!</p>
+                </div>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content: Menu -->
+      <div id="tab-menu" class="tab-content p-8">
+        <h3 class="text-2xl font-semibold text-red-700 mb-6">Menu & Services</h3>
+        <form action="/providers/dashboard" method="POST">
+          <div id="menu-items" class="space-y-4">
+            <% if (provider.menu && provider.menu.length > 0) { %>
+              <% provider.menu.forEach((item, index) => { %>
+                <div class="menu-item p-4 border rounded-xl bg-yellow-50 relative group">
+                  <button type="button" onclick="removeMenuItem(this)" class="absolute top-2 right-2 text-red-500 hover:text-red-600">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <div class="grid md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label class="block text-gray-700 font-medium mb-2">Service Name</label>
+                      <input type="text" name="menu[<%= index %>][name]" value="<%= item.name %>" required
+                        class="w-full p-2 border rounded focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    </div>
+                    <div class="mb-4">
+                      <label class="block text-gray-700 font-semibold mb-2">Description</label>
+                      <textarea name="services[<%= index %>][description]" rows="3"
+                        class="w-full p-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-red-500 focus:outline-none transition"><%= item.description || '' %></textarea>
+                    </div>
+                    <div>
+                      <label class="block text-gray-700 font-medium mb-2">Price per Head (₹)</label>
+                      <input type="number" name="menu[<%= index %>][pricePerHead]" value="<%= item.pricePerHead %>" required
+                        class="w-full p-2 border rounded focus:ring-2 focus:ring-red-500 focus:outline-none">
+                    </div>
+                  </div>
+                  <div class="mb-4">
+                    <label class="block text-gray-700 font-medium mb-2">Description</label>
+                    <textarea name="menu[<%= index %>][description]" rows="2"
+                      class="w-full p-2 border rounded focus:ring-2 focus:ring-red-500 focus:outline-none"><%= item.description || '' %></textarea>
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 font-medium mb-2">Image URL</label>
+                    <div class="flex gap-2">
+                      <input type="url" name="menu[<%= index %>][image]" value="<%= item.image || '' %>"
+                        placeholder="https://example.com/food.jpg"
+                        class="flex-1 p-2 border rounded focus:ring-2 focus:ring-red-500 focus:outline-none">
+                      <button type="button" onclick="testMenuItemImage(this)" 
+                        class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition text-sm">
+                        <i class="fas fa-eye"></i>
+                      </button>
+                    </div>
+                    <div>
+                      <p class="text-gray-500">Guests</p>
+                      <p class="font-semibold text-gray-800"><%= booking.guests %></p>
+                    </div>
+                    <div>
+                      <p class="text-gray-500">Amount</p>
+                      <p class="font-semibold text-red-700 text-lg">₹<%= booking.finalAmount %></p>
+                    </div>
+                  </div>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <div class="text-center py-16">
+                <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4"></i>
+                <p class="text-gray-500 text-lg">No bookings yet</p>
+                <p class="text-gray-400 text-sm mt-2">Your booking requests will appear here</p>
+              </div>
+            <% } %>
+          </div>
+          <button type="button" onclick="addMenuItem()" class="mt-4 bg-yellow-500 text-white px-6 py-2 rounded-lg hover:bg-yellow-600 transition">
+            <i class="fas fa-plus mr-2"></i>Add Menu Item
+          </button>
+          <button type="submit" class="mt-4 w-full bg-yellow-600 text-white font-semibold py-4 rounded-lg hover:bg-yellow-700 transition shadow-lg">
+            <i class="fas fa-save mr-2"></i>Save Menu
+          </button>
+        </form>
+      </div>
+
+      <!-- Tab Content: Bookings -->
+      <div id="tab-bookings" class="tab-content p-8">
+        <h3 class="text-2xl font-semibold text-red-700 mb-6">Recent Bookings</h3>
+        <a href="/bookings/provider-bookings" class="text-blue-600 hover:text-blue-700 mb-4 inline-block">
+          View All Bookings <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+        <div class="space-y-4 max-h-96 overflow-y-auto">
+          <% if (bookings && bookings.length > 0) { %>
+            <% bookings.slice(0, 10).forEach(booking => { %>
+              <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+                <div class="flex items-center justify-between mb-2">
+                  <span class="font-bold text-sm"><%= booking.customer.name %></span>
+                  <span class="text-xs px-2 py-1 rounded <%= booking.status === 'Accepted' ? 'bg-green-100 text-green-800' : booking.status === 'Pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-gray-100 text-gray-800' %>">
+                    <%= booking.status %>
+                  </span>
+                </div>
+                <p class="text-xs text-gray-600"><%= new Date(booking.eventDate).toLocaleDateString() %></p>
+                <p class="text-xs text-gray-600"><%= booking.guests %> guests • ₹<%= booking.finalAmount %></p>
+              </div>
+            <% }) %>
+          <% } else { %>
+            <p class="text-gray-500 text-sm">No bookings yet</p>
+          <% } %>
+        </div>
+
+      <!-- Tab Content: Staff -->
+      <div id="tab-staff" class="tab-content p-8">
+        <h3 class="text-2xl font-semibold text-red-700 mb-6">Staff Applications</h3>
+        <a href="/staff/applications" class="text-blue-600 hover:text-blue-700 mb-4 inline-block">
+          View All Applications <i class="fas fa-arrow-right ml-1"></i>
+        </a>
+        <div id="staff-list" class="space-y-4">
+          <p class="text-gray-500">Loading staff applications...</p>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // Tab switching
+    function showTab(tabName) {
+      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active', 'text-red-700', 'border-red-700');
+        btn.classList.add('text-gray-600');
+        btn.classList.remove('border-b-2');
+      });
+      document.getElementById(`tab-${tabName}`).classList.add('active');
+      const clickedBtn = event.target.closest('.tab-btn');
+      if (clickedBtn) {
+        clickedBtn.classList.add('active', 'text-red-700', 'border-red-700', 'border-b-2');
+        clickedBtn.classList.remove('text-gray-600');
+      }
+
+      // Load staff count when staff tab is opened
+      if (tabName === 'staff') {
+        loadStaffCount();
+        loadStaffList();
+      }
+    }
+
+    // Image testing
+    function testImage(inputId, previewId) {
+      const input = document.getElementById(inputId);
+      const preview = document.getElementById(previewId);
+      const saveInput = document.getElementById(inputId.replace('-input', '-save'));
+      
+      if (input.value) {
+        preview.src = input.value;
+        preview.classList.remove('hidden');
+        if (saveInput) saveInput.value = input.value;
+      }
+    }
+
+    function testMenuItemImage(btn) {
+      const item = btn.closest('.menu-item');
+      const input = item.querySelector('input[type="url"]');
+      const preview = item.querySelector('.menu-preview');
+      if (input.value) {
+        preview.src = input.value;
+        preview.classList.remove('hidden');
+      }
+    }
+
+    // Menu management
+    let menuIndex = <%= provider.menu ? provider.menu.length : 0 %>;
+    function addMenuItem() {
+      const container = document.getElementById('menu-items');
+      const div = document.createElement('div');
+      div.className = 'menu-item p-4 border rounded-xl bg-yellow-50 relative group';
+      div.innerHTML = `
+        <button type="button" onclick="removeMenuItem(this)" class="absolute top-4 right-4 text-red-500 hover:text-red-600 bg-white rounded-full p-2 shadow-md opacity-0 group-hover:opacity-100 transition">
+          <i class="fas fa-times"></i>
+        </button>
+        <div class="grid md:grid-cols-2 gap-6 mb-4">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Service Name</label>
+            <input type="text" name="menu[${menuIndex}][name]" required
+              class="w-full p-2 border rounded focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Price per Head (₹)</label>
+            <input type="number" name="menu[${menuIndex}][pricePerHead]" required
+              class="w-full p-2 border rounded focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="block text-gray-700 font-medium mb-2">Description</label>
+          <textarea name="menu[${menuIndex}][description]" rows="2"
+            class="w-full p-2 border rounded focus:ring-2 focus:ring-red-500 focus:outline-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-gray-700 font-medium mb-2">Image URL</label>
+          <div class="flex gap-2">
+            <input type="url" name="menu[${menuIndex}][image]"
+              placeholder="https://example.com/food.jpg"
+              class="flex-1 p-2 border rounded focus:ring-2 focus:ring-red-500 focus:outline-none">
+            <button type="button" onclick="testMenuItemImage(this)" 
+              class="px-6 py-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 transition shadow-md">
+              <i class="fas fa-eye"></i>
+            </button>
+          </div>
+          <div class="mt-3">
+            <img src="" alt="Preview" 
+              class="w-32 h-32 object-cover rounded-xl border-2 border-gray-200 hidden menu-preview"
+              onerror="this.classList.add('hidden')">
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+      menuIndex++;
+    }
+
+    function removeMenuItem(btn) {
+      btn.closest('.menu-item').remove();
+    }
+
+    // Load staff count
+    async function loadStaffCount() {
+      try {
+        const res = await fetch('/staff/applications?status=all');
+        const html = await res.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const staffItems = doc.querySelectorAll('.bg-white.rounded-xl, .staff-item');
+        document.getElementById('staff-count').textContent = staffItems.length || 0;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    async function loadStaffList() {
+      try {
+        const res = await fetch('/staff/applications');
+        const html = await res.text();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+        const staffItems = doc.querySelectorAll('.bg-white.rounded-xl');
+        const container = document.getElementById('staff-list');
+        
+        if (staffItems.length > 0) {
+          container.innerHTML = Array.from(staffItems).slice(0, 5).map(item => item.outerHTML).join('');
+        } else {
+          container.innerHTML = '<div class="text-center py-12"><i class="fas fa-users text-6xl text-gray-300 mb-4"></i><p class="text-gray-500">No team applications yet</p></div>';
+        }
+      } catch (e) {
+        document.getElementById('staff-list').innerHTML = '<div class="text-center py-12"><p class="text-gray-500">Error loading team</p></div>';
+      }
+    }
+
+    // Load staff when section is shown
+    document.querySelector('[onclick="showSection(\'staff\')"]')?.addEventListener('click', () => {
+      loadStaffCount();
+      loadStaffList();
+    });
+
+    // Initial load
+    loadStaffCount();
+
+    // GSAP animations
+    gsap.from('.stat-card', { y: 30, opacity: 0, duration: 0.6, stagger: 0.1, delay: 0.2 });
+  </script>
+</body>
+</html>

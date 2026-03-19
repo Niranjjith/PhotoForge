@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Successful - GraphyHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-green-50 via-white to-green-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white shadow-2xl rounded-2xl p-10 w-11/12 max-w-2xl text-center">
+    <div class="mb-8">
+      <div class="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+        <i class="fas fa-check text-white text-5xl"></i>
+      </div>
+      <h2 class="text-4xl font-bold mb-4 text-gray-800">Payment Successful!</h2>
+      <p class="text-xl text-gray-600 mb-2">Your provider account has been activated</p>
+      <p class="text-gray-500">Welcome to GraphyHub — your portfolio is now live</p>
+    </div>
+
+    <div class="bg-green-50 rounded-lg p-6 mb-6">
+      <h3 class="text-xl font-bold mb-4 text-gray-800">Payment Details</h3>
+      <div class="space-y-2 text-gray-700 text-left max-w-md mx-auto">
+        <p><strong>Order ID:</strong> <%= payment.orderId %></p>
+        <p><strong>Payment ID:</strong> <%= payment.paymentId %></p>
+        <p><strong>Amount:</strong> $<%= payment.amount %> USD (₹10 INR)</p>
+        <p><strong>Status:</strong> <span class="text-green-600 font-bold">COMPLETED</span></p>
+        <p><strong>Date:</strong> <%= new Date(payment.completedAt).toLocaleString() %></p>
+      </div>
+    </div>
+
+    <div class="bg-yellow-50 rounded-lg p-6 mb-6">
+      <h3 class="text-xl font-bold mb-4 text-gray-800">Your Premium Bill</h3>
+      <p class="text-gray-700 mb-4">Download your premium PDF bill</p>
+      <a href="/payments/bill/<%= payment._id %>" 
+         class="inline-block btn-primary font-bold px-8 py-3 rounded-xl transition transform hover:scale-105">
+        <i class="fas fa-download mr-2"></i>Download PDF Bill
+      </a>
+    </div>
+
+    <div class="space-y-4">
+      <a href="/providers/dashboard" 
+         class="block w-full bg-green-500 text-white font-bold px-8 py-4 rounded-lg hover:bg-green-600 transition">
+        <i class="fas fa-tachometer-alt mr-2"></i>Go to Provider Dashboard
+      </a>
+      <a href="/" 
+         class="block w-full bg-gray-200 text-gray-800 font-bold px-8 py-4 rounded-lg hover:bg-gray-300 transition">
+        <i class="fas fa-home mr-2"></i>Go to Home
+      </a>
+    </div>
+  </div>
+</body>
+</html>
+

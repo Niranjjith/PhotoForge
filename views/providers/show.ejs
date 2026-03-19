@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= provider.businessName %> - Portfolio | GraphyHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .star-rating { color: #fbbf24; }
+    .hover-lift { transition: transform 0.3s ease; }
+    .hover-lift:hover { transform: translateY(-5px); }
+  </style>
+</head>
+<body class="bg-gray-50">
+  <!-- Navbar -->
+  <nav class="flex justify-between items-center p-6 bg-white shadow-md fixed w-full z-50 top-0">
+    <a href="/" class="text-2xl font-bold text-red-700">
+      <i class="fas fa-camera-retro"></i> GraphyHub
+    </a>
+    <div class="space-x-6">
+      <a href="/providers" class="hover:text-red-700 transition">
+        <i class="fas fa-arrow-left mr-1"></i> Back to Portfolios
+      </a>
+      <% if (user) { %>
+        <form action="/auth/logout" method="POST" class="inline">
+          <button type="submit" class="hover:text-yellow-600 transition">Logout</button>
+        </form>
+      <% } else { %>
+        <a href="/auth/login" class="hover:text-yellow-600 transition">Login</a>
+      <% } %>
+    </div>
+  </nav>
+
+  <!-- Cover Image -->
+  <div class="relative h-96 mt-16 overflow-hidden">
+    <img src="<%= provider.coverImage || 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?auto=format&fit=crop&w=2000&q=85' %>" 
+         alt="<%= provider.businessName %>" 
+         class="w-full h-full object-cover">
+    <div class="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 right-0 p-8 text-white">
+      <div class="max-w-6xl mx-auto">
+        <div class="flex items-center gap-4 mb-4">
+          <% if (provider.logo) { %>
+            <img src="<%= provider.logo %>" alt="Logo" class="w-24 h-24 rounded-full border-4 border-white object-cover">
+          <% } %>
+          <div>
+            <h1 class="text-4xl font-bold mb-2"><%= provider.businessName %></h1>
+            <div class="flex items-center gap-4">
+              <div class="flex items-center">
+                <span class="star-rating mr-2">
+                  <% for(let i = 0; i < 5; i++) { %>
+                    <i class="fas fa-star <%= i < Math.round(provider.rating) ? '' : 'text-gray-400' %>"></i>
+                  <% } %>
+                </span>
+                <span class="font-bold"><%= provider.rating.toFixed(1) %></span>
+                <span class="text-gray-300 ml-2">(<%= provider.totalReviews || 0 %> reviews)</span>
+              </div>
+              <% if (provider.isVerified) { %>
+                <span class="bg-green-500 px-3 py-1 rounded-full text-sm font-bold">
+                  <i class="fas fa-check-circle mr-1"></i> Verified
+                </span>
+              <% } %>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="max-w-6xl mx-auto px-6 py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <!-- Main Content -->
+      <div class="lg:col-span-2 space-y-8">
+        <!-- About -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+          <h2 class="text-3xl font-bold mb-4 text-gray-800">
+            <i class="fas fa-info-circle text-red-700 mr-2"></i>About
+          </h2>
+          <p class="text-gray-700 leading-relaxed text-lg">
+            <%= provider.description || provider.portfolio.bio || 'No description available.' %>
+          </p>
+          <% if (provider.portfolio.specialties && provider.portfolio.specialties.length > 0) { %>
+            <div class="mt-6">
+              <h3 class="font-bold text-gray-800 mb-3">Specialties:</h3>
+              <div class="flex flex-wrap gap-2">
+                <% provider.portfolio.specialties.forEach(specialty => { %>
+                  <span class="bg-red-100 text-red-800 px-4 py-2 rounded-full font-medium">
+                    <i class="fas fa-check-circle mr-1"></i><%= specialty %>
+                  </span>
+                <% }) %>
+              </div>
+            </div>
+          <% } %>
+          <% if (provider.portfolio.yearsOfExperience > 0) { %>
+            <div class="mt-4 text-gray-600">
+              <i class="fas fa-calendar-alt text-red-700 mr-2"></i>
+              <strong><%= provider.portfolio.yearsOfExperience %></strong> years of experience
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Portfolio Images -->
+        <% if (provider.portfolio.images && provider.portfolio.images.length > 0) { %>
+          <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800">
+              <i class="fas fa-images text-red-700 mr-2"></i>Portfolio
+            </h2>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <% provider.portfolio.images.forEach(image => { %>
+                <div class="relative h-48 rounded-lg overflow-hidden hover-lift">
+                  <img src="<%= image %>" alt="Portfolio" class="w-full h-full object-cover">
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- Services & Packages -->
+        <% if (provider.menu && provider.menu.length > 0) { %>
+          <div class="bg-white rounded-2xl shadow-lg p-8">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800">
+              <i class="fas fa-box-open text-red-700 mr-2"></i>Services & Packages
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <% provider.menu.forEach(item => { %>
+                <div class="border border-gray-200 rounded-xl p-6 hover-lift">
+                  <% if (item.image) { %>
+                    <img src="<%= item.image %>" alt="<%= item.name %>" class="w-full h-48 object-cover rounded-lg mb-4">
+                  <% } %>
+                  <h3 class="text-xl font-bold mb-2 text-gray-800"><%= item.name %></h3>
+                  <p class="text-gray-600 mb-3"><%= item.description || 'Photo or video package' %></p>
+                  <div class="flex items-center justify-between">
+                    <span class="text-2xl font-bold text-red-700">₹<%= item.pricePerHead %></span>
+                    <span class="text-sm text-gray-500">per session / package</span>
+                  </div>
+                </div>
+              <% }) %>
+            </div>
+          </div>
+        <% } %>
+
+        <!-- AI Summary -->
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl shadow-lg p-8 mb-8">
+          <div class="flex items-center mb-4">
+            <i class="fas fa-robot text-blue-600 text-2xl mr-3"></i>
+            <h2 class="text-2xl font-bold text-gray-800">AI Review Summary</h2>
+          </div>
+          <div id="ai-summary" class="text-gray-700">
+            <p class="italic">Loading AI summary...</p>
+          </div>
+        </div>
+
+        <!-- Review Form (for logged-in customers) -->
+        <% if (user && user.role === 'customer') { %>
+          <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h2 class="text-3xl font-bold mb-6 text-gray-800">
+              <i class="fas fa-edit text-red-700 mr-2"></i>Write a Review
+            </h2>
+            <form action="/reviews/<%= provider._id %>" method="POST" class="space-y-4">
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Your Rating</label>
+                <div class="flex items-center space-x-2" id="rating-stars">
+                  <% for(let i = 1; i <= 5; i++) { %>
+                    <i class="fas fa-star text-3xl cursor-pointer text-gray-300 hover:text-red-500 transition" 
+                       data-rating="<%= i %>" 
+                       onclick="setRating(<%= i %>)"></i>
+                  <% } %>
+                </div>
+                <input type="hidden" name="rating" id="rating-input" required>
+                <p class="text-sm text-gray-500 mt-2" id="rating-text">Click stars to rate</p>
+              </div>
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Your Review</label>
+                <textarea name="comment" rows="4" 
+                  placeholder="Share your experience with this creator..."
+                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none"></textarea>
+              </div>
+              <button type="submit" class="bg-red-700 text-white font-bold px-6 py-3 rounded-lg hover:bg-red-600 transition">
+                <i class="fas fa-paper-plane mr-2"></i>Submit Review
+              </button>
+            </form>
+          </div>
+        <% } %>
+
+        <!-- Reviews -->
+        <div class="bg-white rounded-2xl shadow-lg p-8">
+          <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-bold text-gray-800">
+              <i class="fas fa-star text-red-700 mr-2"></i>Client Reviews
+            </h2>
+            <div class="flex items-center space-x-4">
+              <select id="rating-filter" class="p-2 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+                <option value="all">All Ratings</option>
+                <option value="5">5 Stars</option>
+                <option value="4">4+ Stars</option>
+                <option value="3">3+ Stars</option>
+              </select>
+            </div>
+          </div>
+          <div id="reviews-container" class="space-y-6">
+            <% if (reviews && reviews.length > 0) { %>
+              <% reviews.forEach(review => { %>
+                <div class="review-item border-b border-gray-200 pb-6 last:border-0" data-rating="<%= review.rating %>">
+                  <div class="flex items-center mb-3">
+                    <div class="w-12 h-12 bg-yellow-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-4">
+                      <%= review.customer.name.charAt(0).toUpperCase() %>
+                    </div>
+                    <div class="flex-1">
+                      <h4 class="font-bold text-gray-800"><%= review.customer.name %></h4>
+                      <div class="star-rating text-sm">
+                        <% for(let i = 0; i < 5; i++) { %>
+                          <i class="fas fa-star <%= i < review.rating ? 'text-yellow-500' : 'text-gray-300' %>"></i>
+                        <% } %>
+                        <span class="ml-2 text-gray-600"><%= review.rating %>.0</span>
+                      </div>
+                    </div>
+                    <span class="text-sm text-gray-500"><%= new Date(review.createdAt).toLocaleDateString() %></span>
+                  </div>
+                  <p class="text-gray-700 ml-16"><%= review.comment || 'No comment provided.' %></p>
+                </div>
+              <% }) %>
+            <% } else { %>
+              <p class="text-gray-500 text-center py-8">No reviews yet. Be the first to review!</p>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sidebar -->
+      <div class="space-y-6">
+        <!-- Book Now Card -->
+        <div class="bg-white rounded-2xl shadow-lg p-6 sticky top-24">
+          <h3 class="text-2xl font-bold mb-4 text-gray-800">Book This Creator</h3>
+          <% if (user && user.role === 'customer') { %>
+            <a href="/providers/<%= provider._id %>/book" class="block w-full bg-red-700 text-white font-bold py-4 rounded-lg hover:bg-red-600 transition text-center mb-4">
+              <i class="fas fa-calendar-check mr-2"></i>Book Now
+            </a>
+          <% } else if (!user) { %>
+            <a href="/auth/login" class="block w-full bg-red-700 text-white font-bold py-4 rounded-lg hover:bg-red-600 transition text-center mb-4">
+              <i class="fas fa-sign-in-alt mr-2"></i>Login to Book
+            </a>
+          <% } else { %>
+            <p class="text-gray-600 mb-4">Only clients can make bookings.</p>
+          <% } %>
+
+          <!-- Contact Info -->
+          <div class="space-y-3 border-t border-gray-200 pt-4">
+            <div class="flex items-center text-gray-700">
+              <i class="fas fa-phone text-red-700 w-6"></i>
+              <span><%= provider.phone %></span>
+            </div>
+            <% if (provider.email) { %>
+              <div class="flex items-center text-gray-700">
+                <i class="fas fa-envelope text-red-700 w-6"></i>
+                <span><%= provider.email %></span>
+              </div>
+            <% } %>
+            <div class="flex items-center text-gray-700">
+              <i class="fas fa-map-marker-alt text-red-700 w-6"></i>
+              <span><%= provider.address || 'Address not provided' %></span>
+            </div>
+            <% if (provider.city) { %>
+              <div class="flex items-center text-gray-700">
+                <i class="fas fa-city text-red-700 w-6"></i>
+                <span><%= provider.city %><% if (provider.state) { %>, <%= provider.state %><% } %></span>
+              </div>
+            <% } %>
+          </div>
+
+          <!-- Social Links -->
+          <% if (provider.socialLinks && (provider.socialLinks.website || provider.socialLinks.facebook || provider.socialLinks.instagram)) { %>
+            <div class="border-t border-gray-200 pt-4 mt-4">
+              <h4 class="font-bold text-gray-800 mb-3">Follow Us</h4>
+              <div class="flex gap-3">
+                <% if (provider.socialLinks.website) { %>
+                  <a href="<%= provider.socialLinks.website %>" target="_blank" class="text-gray-600 hover:text-yellow-600 transition">
+                    <i class="fas fa-globe text-xl"></i>
+                  </a>
+                <% } %>
+                <% if (provider.socialLinks.facebook) { %>
+                  <a href="<%= provider.socialLinks.facebook %>" target="_blank" class="text-gray-600 hover:text-yellow-600 transition">
+                    <i class="fab fa-facebook text-xl"></i>
+                  </a>
+                <% } %>
+                <% if (provider.socialLinks.instagram) { %>
+                  <a href="<%= provider.socialLinks.instagram %>" target="_blank" class="text-gray-600 hover:text-yellow-600 transition">
+                    <i class="fab fa-instagram text-xl"></i>
+                  </a>
+                <% } %>
+                <% if (provider.socialLinks.twitter) { %>
+                  <a href="<%= provider.socialLinks.twitter %>" target="_blank" class="text-gray-600 hover:text-yellow-600 transition">
+                    <i class="fab fa-twitter text-xl"></i>
+                  </a>
+                <% } %>
+              </div>
+            </div>
+          <% } %>
+        </div>
+
+        <!-- Stats Card -->
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+          <h3 class="text-xl font-bold mb-4 text-gray-800">Statistics</h3>
+          <div class="space-y-3">
+            <div class="flex justify-between">
+              <span class="text-gray-600">Rating</span>
+              <span class="font-bold"><%= provider.rating.toFixed(1) %> / 5.0</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Total Reviews</span>
+              <span class="font-bold"><%= provider.totalReviews || 0 %></span>
+            </div>
+            <div class="flex justify-between">
+              <span class="text-gray-600">Service Radius</span>
+              <span class="font-bold"><%= provider.serviceRadius || 50 %> km</span>
+            </div>
+            <% if (provider.portfolio.yearsOfExperience > 0) { %>
+              <div class="flex justify-between">
+                <span class="text-gray-600">Experience</span>
+                <span class="font-bold"><%= provider.portfolio.yearsOfExperience %> years</span>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-300 py-8 mt-16">
+    <div class="max-w-6xl mx-auto text-center px-6">
+      <p class="text-sm">© 2025 GraphyHub — Photography & Video Platform</p>
+    </div>
+  </footer>
+
+  <script>
+    let selectedRating = 0;
+
+    function setRating(rating) {
+      selectedRating = rating;
+      document.getElementById('rating-input').value = rating;
+      const stars = document.querySelectorAll('#rating-stars i');
+      const ratingText = document.getElementById('rating-text');
+      
+      stars.forEach((star, index) => {
+        if (index < rating) {
+          star.classList.remove('text-gray-300');
+          star.classList.add('text-yellow-500');
+        } else {
+          star.classList.remove('text-yellow-500');
+          star.classList.add('text-gray-300');
+        }
+      });
+
+      const texts = ['', 'Poor', 'Fair', 'Good', 'Very Good', 'Excellent'];
+      ratingText.textContent = texts[rating] || 'Click stars to rate';
+    }
+
+    // Rating filter
+    document.getElementById('rating-filter')?.addEventListener('change', function() {
+      const filterValue = this.value;
+      const reviews = document.querySelectorAll('.review-item');
+      
+      reviews.forEach(review => {
+        const rating = parseInt(review.dataset.rating);
+        if (filterValue === 'all' || rating >= parseInt(filterValue)) {
+          review.style.display = 'block';
+        } else {
+          review.style.display = 'none';
+        }
+      });
+    });
+
+    // Load AI Summary
+    fetch(`/reviews/<%= provider._id %>/ai-summary`)
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('ai-summary').innerHTML = `<p>${data.summary}</p>`;
+      })
+      .catch(err => {
+        document.getElementById('ai-summary').innerHTML = '<p class="text-gray-500">Unable to load AI summary.</p>';
+      });
+  </script>
+</body>
+</html>
+

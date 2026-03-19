@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book <%= provider.businessName %> | GraphyHub</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50">
+  <nav class="flex justify-between items-center p-6 bg-white shadow-md fixed w-full z-50 top-0">
+    <a href="/" class="text-2xl font-bold text-red-700">
+      <i class="fas fa-camera-retro"></i> GraphyHub
+    </a>
+    <a href="/providers/<%= provider._id %>" class="hover:text-red-700 transition">
+      <i class="fas fa-arrow-left mr-1"></i> Back
+    </a>
+  </nav>
+
+  <div class="max-w-4xl mx-auto px-6 pt-24 pb-12">
+    <h1 class="text-4xl font-bold mb-8 text-gray-800">Book <%= provider.businessName %></h1>
+
+    <form method="POST" action="/bookings/<%= provider._id %>" class="bg-white rounded-2xl shadow-lg p-8 space-y-6">
+      <!-- Project / Session Details -->
+      <div>
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Project Details</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Session / Shoot Date *</label>
+            <input type="date" name="eventDate" required 
+                   min="<%= new Date().toISOString().split('T')[0] %>"
+                   class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Time</label>
+            <input type="time" name="eventTime" 
+                   class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Number of Guests / Attendees *</label>
+            <input type="number" name="guests" min="1" required 
+                   class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Project Type</label>
+            <select name="eventType" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+              <option value="Wedding">Wedding Photography / Video</option>
+              <option value="Portrait">Portrait Session</option>
+              <option value="Commercial">Commercial / Brand</option>
+              <option value="Event">Event Coverage</option>
+              <option value="Video Edit">Video Editing</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Location -->
+      <div>
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Location</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-gray-700 font-medium mb-2">Address *</label>
+            <input type="text" name="eventAddress" required 
+                   placeholder="Shoot or project address"
+                   class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-gray-700 font-medium mb-2">City</label>
+              <input type="text" name="eventCity" 
+                     placeholder="Enter city"
+                     class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Latitude (optional)</label>
+                <input type="number" step="any" name="eventLat" 
+                       placeholder="e.g. 19.0760"
+                       class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-gray-700 font-medium mb-2">Longitude (optional)</label>
+                <input type="number" step="any" name="eventLng" 
+                       placeholder="e.g. 72.8777"
+                       class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none">
+              </div>
+            </div>
+          </div>
+          <button type="button" onclick="getLocation()" class="text-sm text-red-700 hover:text-teal-700">
+            <i class="fas fa-map-marker-alt mr-1"></i>Use My Current Location
+          </button>
+        </div>
+      </div>
+
+      <!-- Services -->
+      <div>
+        <h2 class="text-2xl font-bold mb-4 text-gray-800">Select Services</h2>
+        <div id="services-container" class="space-y-3">
+          <% if (provider.menu && provider.menu.length > 0) { %>
+            <% provider.menu.forEach(item => { %>
+              <label class="flex items-start p-4 border rounded-lg hover:bg-red-50 cursor-pointer service-item">
+                <input type="checkbox" name="services" value="<%= item.name %>" 
+                       class="mt-1 mr-4 w-5 h-5 text-red-700 focus:ring-red-500 service-checkbox"
+                       data-price="<%= item.pricePerHead %>">
+                <div class="flex-1">
+                  <div class="flex items-center justify-between">
+                    <h3 class="font-bold text-gray-800"><%= item.name %></h3>
+                    <span class="text-red-700 font-bold">₹<%= item.pricePerHead %> / session</span>
+                  </div>
+                  <p class="text-sm text-gray-600 mt-1"><%= item.description || '' %></p>
+                </div>
+              </label>
+            <% }) %>
+          <% } else { %>
+            <p class="text-gray-500">No packages available.</p>
+          <% } %>
+        </div>
+        <div class="mt-4 p-4 bg-red-50 rounded-lg">
+          <div class="flex justify-between items-center">
+            <span class="font-bold text-gray-800">Estimated Total:</span>
+            <span class="text-2xl font-bold text-red-700" id="estimated-total">₹0</span>
+          </div>
+          <p class="text-sm text-gray-600 mt-1" id="discount-info"></p>
+        </div>
+      </div>
+
+      <!-- Special Requests -->
+      <div>
+        <label class="block text-gray-700 font-medium mb-2">Notes / Special Requests</label>
+        <textarea name="specialRequests" rows="4" 
+                  placeholder="Creative direction, deliverables, or other notes..."
+                  class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:outline-none"></textarea>
+      </div>
+
+      <!-- Submit -->
+      <div class="pt-4">
+        <button type="submit" class="w-full bg-red-700 text-white font-bold py-4 rounded-lg hover:bg-red-600 transition text-lg">
+          <i class="fas fa-calendar-check mr-2"></i>Submit Booking Request
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    function getLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          document.querySelector('input[name="eventLat"]').value = position.coords.latitude.toFixed(6);
+          document.querySelector('input[name="eventLng"]').value = position.coords.longitude.toFixed(6);
+        });
+      } else {
+        alert("Geolocation is not supported by this browser.");
+      }
+    }
+
+    // Calculate estimated total
+    function calculateTotal() {
+      const guests = parseInt(document.querySelector('input[name="guests"]').value) || 0;
+      const checkboxes = document.querySelectorAll('.service-checkbox:checked');
+      let total = 0;
+
+      checkboxes.forEach(checkbox => {
+        const price = parseFloat(checkbox.dataset.price);
+        total += price * guests;
+      });
+
+      // Check if user is student (you can add this check)
+      const isStudent = false; // Add logic to check if user is student
+      let discount = 0;
+      let finalTotal = total;
+
+      if (isStudent && total > 0) {
+        discount = total * 0.1; // 10% discount
+        finalTotal = total - discount;
+        document.getElementById('discount-info').textContent = `Student discount (10%): -₹${discount.toFixed(2)}`;
+      } else {
+        document.getElementById('discount-info').textContent = '';
+      }
+
+      document.getElementById('estimated-total').textContent = `₹${finalTotal.toFixed(2)}`;
+    }
+
+    // Add event listeners
+    document.querySelectorAll('.service-checkbox').forEach(checkbox => {
+      checkbox.addEventListener('change', calculateTotal);
+    });
+
+    document.querySelector('input[name="guests"]').addEventListener('input', calculateTotal);
+
+    // Initial calculation
+    calculateTotal();
+  </script>
+</body>
+</html>
+
