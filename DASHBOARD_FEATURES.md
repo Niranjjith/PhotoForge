@@ -277,17 +277,3 @@
 ---
 
 All features are fully functional and ready to use! 🚀
-
-## 📸 Screenshots
-
-### 🏠 Home Page
-![Home](./screenshots/home.png)
-
-### 🔐 Login Page
-![Login](./screenshots/login.png)
-
-### 📝 Signup Page
-![Signup](./screenshots/signup.png)
-
-### 📊 Dashboard
-![Dashboard](./screenshots/dashboard.png)

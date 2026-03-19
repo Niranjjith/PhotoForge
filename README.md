@@ -189,10 +189,19 @@ GraphyHub-platform/
 
 ---
 
-## 📄 License
 
-MIT
+## 📸 Screenshots
 
----
+### 🏠 Home Page
+![Home](./screenshots/home.png)
+
+### 🔐 Login Page
+![Login](./screenshots/login.png)
+
+### 📝 Signup Page
+![Signup](./screenshots/signup.png)
+
+### 📊 Dashboard
+![Dashboard](./screenshots/dashboard.png)
 
 **Made with ❤️ for photographers and video editors**
