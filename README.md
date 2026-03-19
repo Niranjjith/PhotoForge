@@ -193,15 +193,15 @@ GraphyHub-platform/
 ## 📸 Screenshots
 
 ### 🏠 Home Page
-![Home](./screenshots/home.png)
+![Home](./screenshots/Home.png)
 
 ### 🔐 Login Page
-![Login](./screenshots/login.png)
+![Login](./screenshots/Login.png)
 
 ### 📝 Signup Page
 ![Signup](./screenshots/signup.png)
 
 ### 📊 Dashboard
-![Dashboard](./screenshots/dashboard.png)
+![Dashboard](./screenshots/Dashboard.png)
 
 **Made with ❤️ for photographers and video editors**
